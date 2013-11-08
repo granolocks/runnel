@@ -100,7 +100,44 @@ EOF
 end
 
 class TestRunnelAutoSsh < Minitest::Test
-  def test_auto_ssh_is_a_class
-    assert_equal Runnel::AutoSsh.class, Class
+
+  def setup
+    @test_id = "test_tunnel"
+    @test_config = {:name => "Test tunnel!", :mport => 12345, :command => ''}
+    @test_tunnel = Runnel::AutoSsh.new(@test_id,@test_config)
   end
+
+  def test_auto_ssh_is_a_class
+    assert_equal @test_tunnel.class, Runnel::AutoSsh
+  end
+
+  def test_initializes_with_a_tunnel_id_and_config_hash
+    assert_equal @test_tunnel.config, @test_config
+    assert_equal @test_tunnel.id,     @test_id
+  end
+
+  def test_description
+    expected = "#@test_id - #{@test_config[:name]}"
+    assert_equal @test_tunnel.description, expected
+  end
+
+  def test_pp_description
+    # only testing for red because not running
+    assert_equal @test_tunnel.pp_description, "\033[31m#{@test_tunnel.description}\033[0m"
+  end
+
+  def test_running?
+    # test with no pidfile
+    assert_equal @test_tunnel.running?, false
+
+    pidfile = "#{Runnel::PIDS_DIR}/#@test_id"
+    File.write(pidfile, "99999999" )
+
+    # stale pid cleanup
+    assert_equal @test_tunnel.running?, false
+    assert_equal File.exists?(pidfile), false
+
+    # TODO test if it works when it is actually running
+  end
+
 end

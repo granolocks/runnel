@@ -8,20 +8,24 @@ module Runnel
       @config = config
     end
 
-    def pp_description
+    def description
       txt = "#{id} - #{conf[:name]}"
       txt += " (Running: #{pid})" if running?
-      running? ? green(txt) : red(txt)
+      txt
+    end
+
+    def pp_description
+      running? ? green(description) : red(description)
     end
 
     def running?
-      if File.exists?(pid_file)
-        if `ps #{pid} | grep autossh`.length == 0
-          File.delete(pid_file)
-          false
-        else
-          true
-        end
+      return false unless File.exists?(pid_file)
+
+      if `ps #{pid} | grep autossh`.length == 0
+        File.delete(pid_file)
+        false
+      else
+        true
       end
     end
 
