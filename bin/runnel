@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'yaml'
+require 'runnel'
 
 HELP = <<TXT
 Runnel is a easy way to manage your ssh tunnels. It relies on autossh
@@ -27,122 +28,7 @@ TCONF_EXAMPLE = <<YAML
   :name: mySQL proxy for work
   :mport: 44490
   :command: -NfL 3306:localhost:3306 mysqlbox.org
-
 YAML
-
-class Runnel
-  RUNNEL_DIR  = ENV['HOME']+"/.runnel"
-  PIDS_DIR  = "#{RUNNEL_DIR}/pids"
-  PIDS_FILES  = "#{PIDS_DIR}/*"
-  TUNNEL_CONFIG = "#{RUNNEL_DIR}/tunnels.yml"
-
-
-  def self.config
-    @config = YAML.load_file(TUNNEL_CONFIG)
-  end
-
-  def self.setup
-    puts "mkdir -p #{RUNNEL_DIR} #{PIDS_DIR}"
-    `mkdir -p #{RUNNEL_DIR} #{PIDS_DIR}`
-    unless File.exists?(TUNNEL_CONFIG)
-      puts "Populating an example config"
-      File.open(TUNNEL_CONFIG, 'w').puts(TCONF_EXAMPLE)
-    end
-    puts "Now just update #{TUNNEL_CONFIG}"
-  end
-
-  def self.all
-    list = []
-    config.each_pair do |k,v|
-      list << self.new(k, v)
-    end
-    list
-  end
-
-  def self.kill(tid)
-    create_from_tunnel_id(tid).kill
-  end
-
-  def self.start(tid)
-    tunnel = create_from_tunnel_id(tid)
-    tunnel.start
-  end
-
-  def self.start_all
-    self.all.each do |t|
-      t.start unless t.running?
-    end
-  end
-
-  def self.kill_all
-    self.all.each do |t|
-      t.kill if t.running?
-    end
-  end
-
-  def self.create_from_tunnel_id(tid)
-    self.new(tid, config[tid.to_sym])
-  end
-
-  attr_reader :id, :config
-  alias_method :conf, :config
-
-  def initialize(id, config)
-    @id = id
-    @config = config
-  end
-
-  def pp_description
-    txt = "#{id} - #{conf[:name]}"
-    txt += " (Running: #{pid})" if running?
-    running? ? green(txt) : red(txt)
-  end
-
-  def running?
-    if File.exists?(pid_file)
-      if `ps #{pid} | grep autossh`.length == 0
-        File.delete(pid_file)
-        false
-      else
-        true
-      end
-    end
-  end
-
-  def start
-    puts "Starting #{conf[:name]}"
-    puts "AUTOSSH_PIDFILE=#{pid_file} autossh -M #{conf[:mport]} #{conf[:command]}"
-    ENV['AUTOSSH_PIDFILE'] = pid_file
-    `autossh -M #{conf[:mport]} #{conf[:command]}`
-  end
-
-  def kill
-    if running?
-      `kill #{pid}`
-    else
-      puts "Unable to find a running #{conf[:name]}"
-    end
-  end
-
-  private
-
-  def pid_file
-    "#{PIDS_DIR}/#{id}"
-  end
-
-  def pid
-    File.read(pid_file).chomp
-  end
-
-  def red(txt)
-    "\033[31m#{txt}\033[0m"
-  end
-
-  def green(txt)
-    "\033[32m#{txt}\033[0m"
-  end
-
-end
 
 unless ARGV[0]
   if File.exists?(Runnel::TUNNEL_CONFIG)
