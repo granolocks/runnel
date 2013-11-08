@@ -58,3 +58,4 @@ module Runnel
       "\033[32m#{txt}\033[0m"
     end
   end
+end

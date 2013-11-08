@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'minitest'
+require 'minitest/autorun'
+
+require File.expand_path('../lib/runnel.rb', __FILE__)
+
+class TestRunnel < Minitest::Test
+  def test_runnel_is_a_module
+    assert_equal Runnel.class, Module
+  end
+
+  def test_runnel_has_an_api
+    expected_methods = [ :config, :setup, :all, :kill, :start, :start_all, :kill_all, :create_from_tunnel_id ]
+    invalid_api = expected_methods.map {|m| Runnel.methods.include?(m)}.include?(false)
+    assert_equal invalid_api, false
+  end
+
+  def test_runnel_has_several_constants
+    runnel_dir    = ENV['HOME']+"/.runnel"
+    pids_dir      = "#{runnel_dir}/pids"
+    pids_files    = "#{pids_dir}/*"
+    tunnel_config = "#{runnel_dir}/tunnels.yml"
+
+    test_array      = [runnel_dir, pids_dir, pids_files, tunnel_config]
+    constants_array = [Runnel::RUNNEL_DIR, Runnel::PIDS_DIR, Runnel::PIDS_FILES, Runnel::TUNNEL_CONFIG]
+
+    assert_equal test_array, constants_array
+  end
+
+end
+
+class TestRunnelAutoSsh < Minitest::Test
+  def test_auto_ssh_is_a_class
+    assert_equal Runnel::AutoSsh.class, Class
+  end
+end
