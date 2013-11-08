@@ -28,10 +28,6 @@ EOF
   end
 
   def test_runnel_has_several_constants
-    runnel_dir    = ENV['HOME']+"/.runnel"
-    pids_dir      = "#{runnel_dir}/pids"
-    pids_files    = "#{pids_dir}/*"
-    tunnel_config = "#{runnel_dir}/tunnels.yml"
     tconf_example_from_yaml_first = [ 
         :socks_proxy,
         {
@@ -41,11 +37,17 @@ EOF
         }
       ]
 
-    test_array      = [runnel_dir, pids_dir, pids_files, tunnel_config, tconf_example_from_yaml_first]
-    constants_array = [Runnel::RUNNEL_DIR, Runnel::PIDS_DIR, Runnel::PIDS_FILES, Runnel::TUNNEL_CONFIG, YAML.load(Runnel::TCONF_EXAMPLE).first]
+    tests = [
+      [ Runnel::RUNNEL_DIR,                      "#{ENV['HOME']}/.runnel"            ],
+      [ Runnel::PIDS_DIR,                        "#{Runnel::RUNNEL_DIR}/pids"        ],
+      [ Runnel::PIDS_FILES,                      "#{Runnel::PIDS_DIR}/*"             ],
+      [ Runnel::TUNNEL_CONFIG,                   "#{Runnel::RUNNEL_DIR}/tunnels.yml" ],
+      [ YAML.load(Runnel::TCONF_EXAMPLE).first,  tconf_example_from_yaml_first       ]
+    ]
 
-    assert_equal test_array, constants_array
-
+    tests.each do |(constant, expected)|
+      assert_equal constant, expected
+    end
   end
 
   def test_config
