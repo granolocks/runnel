@@ -7,6 +7,16 @@ require 'minitest/autorun'
 require File.expand_path('../lib/runnel.rb', __FILE__)
 
 class TestRunnel < Minitest::Test
+  def setup
+    @test_yaml = <<EOF
+---
+:socks_proxy:
+  :name: My socks proxy for secure browsing on public WiFi
+  :mport: 44488 #The autossh monitor port
+  :command: -NfD 8080 mysecurebox.net
+EOF
+  end
+
   def test_runnel_is_a_module
     assert_equal Runnel.class, Module
   end
@@ -32,30 +42,51 @@ class TestRunnel < Minitest::Test
   def test_config
     # Runnel.config returns the a hash for conifuring all the tunnels
     # which is read as YAML from Runnel::TUNNEL_CONFIG
-    test_yaml = <<EOF
----
-:socks_proxy:
-  :name: My socks proxy for secure browsing on public WiFi
-  :mport: 44488 #The autossh monitor port
-  :command: -NfD 8080 mysecurebox.net
-EOF
+    @backup_config = current_config
 
-    # There has got to be a better way
-    @backup_config = File.exists?(Runnel::TUNNEL_CONFIG) ?  File.read(Runnel::TUNNEL_CONFIG) : nil
+    File.write Runnel::TUNNEL_CONFIG, @test_yaml
 
-    File.write Runnel::TUNNEL_CONFIG, test_yaml
-
-    expected = YAML.load(test_yaml)
+    expected = YAML.load(@test_yaml)
     actual   = Runnel.config
 
     # Clean up the mess
-    if @backup_config
-      File.write Runnel::TUNNEL_CONFIG, @backup_config
+    restore_config(@backup_config)
+
+    assert_equal expected, actual
+  end
+
+  # def test_setup
+  #   TODO
+  # end
+
+  def test_all
+    # Runnel.all returns an array of AutoSsh Objects with the config loaded
+    # There has got to be a better way
+    @backup_config = current_config
+
+    File.write Runnel::TUNNEL_CONFIG, @test_yaml
+
+    result = Runnel.all
+
+    # Clean up the mess
+    restore_config(@backup_config)
+
+    assert_equal result.class, Array
+    assert_equal result.first.class, Runnel::AutoSsh
+  end
+
+  private
+
+  def current_config
+    File.exists?(Runnel::TUNNEL_CONFIG) ?  File.read(Runnel::TUNNEL_CONFIG) : nil
+  end
+
+  def restore_config(config=nil)
+    if config
+      File.write Runnel::TUNNEL_CONFIG, config
     else
       File.unlink Runnel::TUNNEL_CONFIG
     end
-
-    assert_equal expected, actual
   end
 end
 
