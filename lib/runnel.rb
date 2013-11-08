@@ -25,18 +25,18 @@ module Runnel
 
   def self.all
     list = []
-    config.each_pair do |k,v|
-      list << AutoSsh.new(k, v)
+    config.each_pair do |tunnel_id,config|
+      list << AutoSsh.new(tunnel_id, config)
     end
     list
   end
 
-  def self.kill(tid)
-    create_from_tunnel_id(tid).kill
+  def self.kill(tunnel_id)
+    create_from_tunnel_id(tunnel_id).kill
   end
 
-  def self.start(tid)
-    tunnel = create_from_tunnel_id(tid)
+  def self.start(tunnel_id)
+    tunnel = create_from_tunnel_id(tunnel_id)
     tunnel.start
   end
 
@@ -52,7 +52,7 @@ module Runnel
     end
   end
 
-  def self.create_from_tunnel_id(tid)
-    AutoSsh.new(tid, config[tid.to_sym])
+  def self.create_from_tunnel_id(tunnel_id)
+    AutoSsh.new(tunnel_id, config[tunnel_id.to_sym])
   end
 end
