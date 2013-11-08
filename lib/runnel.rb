@@ -1,4 +1,5 @@
-require 'runnel/auto_ssh'
+require './runnel/auto_ssh.rb'
+require './runnel/version.rb'
 
 module Runnel
   RUNNEL_DIR    = ENV['HOME']+"/.runnel"
