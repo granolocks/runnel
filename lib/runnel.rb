@@ -8,6 +8,17 @@ module Runnel
   PIDS_DIR      = "#{RUNNEL_DIR}/pids"
   PIDS_FILES    = "#{PIDS_DIR}/*"
   TUNNEL_CONFIG = "#{RUNNEL_DIR}/tunnels.yml"
+  TCONF_EXAMPLE = <<YAML
+---
+:socks_proxy:
+  :name: My socks proxy for secure browsing on public WiFi
+  :mport: 44488 #The autossh monitor port
+  :command: -NfD 8080 mysecurebox.net
+:mysql_proxy:
+  :name: mySQL proxy for work
+  :mport: 44490
+  :command: -NfL 3306:localhost:3306 mysqlbox.org
+YAML
 
   def self.config
     YAML.load_file(TUNNEL_CONFIG)

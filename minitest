@@ -32,11 +32,20 @@ EOF
     pids_dir      = "#{runnel_dir}/pids"
     pids_files    = "#{pids_dir}/*"
     tunnel_config = "#{runnel_dir}/tunnels.yml"
+    tconf_example_from_yaml_first = [ 
+        :socks_proxy,
+        {
+          :name => "My socks proxy for secure browsing on public WiFi",
+          :mport => 44488 ,
+          :command => "-NfD 8080 mysecurebox.net"
+        }
+      ]
 
-    test_array      = [runnel_dir, pids_dir, pids_files, tunnel_config]
-    constants_array = [Runnel::RUNNEL_DIR, Runnel::PIDS_DIR, Runnel::PIDS_FILES, Runnel::TUNNEL_CONFIG]
+    test_array      = [runnel_dir, pids_dir, pids_files, tunnel_config, tconf_example_from_yaml_first]
+    constants_array = [Runnel::RUNNEL_DIR, Runnel::PIDS_DIR, Runnel::PIDS_FILES, Runnel::TUNNEL_CONFIG, YAML.load(Runnel::TCONF_EXAMPLE).first]
 
     assert_equal test_array, constants_array
+
   end
 
   def test_config

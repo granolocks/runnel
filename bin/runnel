@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+
 require 'rubygems'
 require 'yaml'
 require 'runnel'
@@ -17,18 +18,6 @@ Basic Command Line Usage:
   PID's are stored in ~/.runnel/pids/
 
 TXT
-
-TCONF_EXAMPLE = <<YAML
----
-:socks_proxy:
-  :name: My socks proxy for secure browsing on public WiFi
-  :mport: 44488 #The autossh monitor port
-  :command: -NfD 8080 mysecurebox.net
-:mysql_proxy:
-  :name: mySQL proxy for work
-  :mport: 44490
-  :command: -NfL 3306:localhost:3306 mysqlbox.org
-YAML
 
 unless ARGV[0]
   if File.exists?(Runnel::TUNNEL_CONFIG)
