@@ -61,7 +61,7 @@ EOF
 
   def test_all
     # Runnel.all returns an array of AutoSsh Objects with the config loaded
-    # There has got to be a better way
+    
     @backup_config = current_config
 
     File.write Runnel::TUNNEL_CONFIG, @test_yaml
