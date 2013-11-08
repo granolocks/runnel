@@ -29,6 +29,34 @@ class TestRunnel < Minitest::Test
     assert_equal test_array, constants_array
   end
 
+  def test_config
+    # Runnel.config returns the a hash for conifuring all the tunnels
+    # which is read as YAML from Runnel::TUNNEL_CONFIG
+    test_yaml = <<EOF
+---
+:socks_proxy:
+  :name: My socks proxy for secure browsing on public WiFi
+  :mport: 44488 #The autossh monitor port
+  :command: -NfD 8080 mysecurebox.net
+EOF
+
+    # There has got to be a better way
+    @backup_config = File.exists?(Runnel::TUNNEL_CONFIG) ?  File.read(Runnel::TUNNEL_CONFIG) : nil
+
+    File.write Runnel::TUNNEL_CONFIG, test_yaml
+
+    expected = YAML.load(test_yaml)
+    actual   = Runnel.config
+
+    # Clean up the mess
+    if @backup_config
+      File.write Runnel::TUNNEL_CONFIG, @backup_config
+    else
+      File.unlink Runnel::TUNNEL_CONFIG
+    end
+
+    assert_equal expected, actual
+  end
 end
 
 class TestRunnelAutoSsh < Minitest::Test

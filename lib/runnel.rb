@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'yaml'
 require File.expand_path('../runnel/auto_ssh.rb', __FILE__)
 require File.expand_path('../runnel/version.rb', __FILE__)
 
@@ -8,7 +10,7 @@ module Runnel
   TUNNEL_CONFIG = "#{RUNNEL_DIR}/tunnels.yml"
 
   def self.config
-    @config = YAML.load_file(TUNNEL_CONFIG)
+    YAML.load_file(TUNNEL_CONFIG)
   end
 
   def self.setup
